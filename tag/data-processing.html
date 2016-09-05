@@ -3,7 +3,8 @@
 <head>
         <meta charset="utf-8" />
         <title>Coding stuff and things - data processing</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link rel="stylesheet" href="http://aeggenberger.github.io/theme/css/main.css" />
+        <link href="http://aeggenberger.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Coding stuff and things Atom Feed" />
 
         <!--[if IE]>
             <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -12,51 +13,42 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="/">Coding stuff and things </a></h1>
+                <h1><a href="http://aeggenberger.github.io/">Coding stuff and things </a></h1>
                 <nav><ul>
-                    <li><a href="/category/meta.html">Meta</a></li>
-                    <li><a href="/category/thinking-about-working-with-data.html">Thinking about working with data</a></li>
+                    <li><a href="http://aeggenberger.github.io/category/meta.html">Meta</a></li>
+                    <li><a href="http://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/d3-awk-for-web.html">Is d3 awk for the web?</a></h1>
+                    <h1 class="entry-title"><a href="http://aeggenberger.github.io/d3-awk-for-web.html">Is d3 awk for the web?</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2016-09-05T11:05:26-05:00">
+        <abbr class="published" title="2016-09-05T11:12:43-05:00">
                 Published: Mon 05 September 2016
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="/author/andrew-eggenberger.html">Andrew Eggenberger</a>
+                By                         <a class="url fn" href="http://aeggenberger.github.io/author/andrew-eggenberger.html">Andrew Eggenberger</a>
         </address>
-<p>In <a href="/category/thinking-about-working-with-data.html">Thinking about working with data</a>.</p>
-<p>tags: <a href="/tag/d3.html">d3</a> <a href="/tag/awk.html">awk</a> <a href="/tag/gawk.html">gawk</a> <a href="/tag/data-processing.html">data processing</a> </p>
+<p>In <a href="http://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a>.</p>
+<p>tags: <a href="http://aeggenberger.github.io/tag/d3.html">d3</a> <a href="http://aeggenberger.github.io/tag/awk.html">awk</a> <a href="http://aeggenberger.github.io/tag/gawk.html">gawk</a> <a href="http://aeggenberger.github.io/tag/data-processing.html">data processing</a> </p>
 </footer><!-- /.post-info --><p>Maybe! I don't know.</p>
 <p>But there are some similarities that helped me make the leap from the (my?) usual procedural javascript style to the more declarative, functional style embraced by d3.</p>
 <h2>'Data Driven'</h2>
 <p>Let's begin with awk's concept of records. These are the discrete chunks of data on which awk operates. At its most basic, awk goes through records one by one, optionally printing all or part of the record, transforming the record, updating a state variable to be accessed later -- all kinds of things. This is analogous to the d3 concept of data. In d3, data is <a href="http://alignedleft.com/tutorials/d3/binding-data">bound</a> to the DOM. Once the enter method is called, d3 iterates through the data in discrete chunks and does what it will with it.</p>
-<p>In both instances, it's the programmer's job to describe the data they want want to work with and what should happen when it's found, rather than set up a whole bunch of scaffolding and boilerplate code (for loops, etc.) to process the data. The documentation for both <a href="https://www.gnu.org/software/gawk/manual/gawk.html#Getting-Started">gawk</a> and <a href="https://d3js.org/">d3</a> describe this approach as "data driven." D3 itself is not quite an initialism for "Data-Driven Documents."</p>
+<p>In both instances, it's the programmer's job to describe the data they want want to work with and what should happen when it's found, rather than set up a whole bunch of scaffolding and boilerplate code (for loops, etc.) to process the data. The documentation for both <a href="https://www.gnu.org/software/gawk/manual/gawk.html#Getting-Started">gawk</a> and <a href="https://d3js.org/">d3</a> describe this approach as "data driven." D3 itself is sort of but not quite an initialism for "Data-Driven Documents."</p>
 <h2>Similar philosophy, different use cases</h2>
 <p>It took me years of procedural hacking before I realized the usefulness of declarative syntax and functional programming. Now I use them whenever I can. Maybe someday I'll be able to use them whenever they are appropriate. The model is flexible enough that it can be used at different ends of my data pipeline. For instance, when I was creating a database table with a column for all the different types of police calls in Lake City, I didn't have a master list to work with. Instead I had years worth of weekly reports. Some calls, like "traffic violations," appear virtually every week. Others, like homicide, are extremely rare. Using a very short awk script, I was able to scan every file and return only the unique call types. As a bonus, I was able to format the output as a valid sql query that I ran against my database. I might use awk again to generate insert queries, one per week, into the table. </p>
 <p>Once I have my data, I'm going to want to present it to our readers. That's where d3 and its heavy focus on presentation comes in.</p>                </article>
             </aside><!-- /#featured -->
         <section id="extras" class="body">
-                <div class="blogroll">
-                        <h2>blogroll</h2>
-                        <ul>
-                            <li><a href="http://getpelican.com/">Pelican</a></li>
-                            <li><a href="http://python.org/">Python.org</a></li>
-                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
-                            <li><a href="#">You can modify those links in your config file</a></li>
-                        </ul>
-                </div><!-- /.blogroll -->
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="http://aeggenberger.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
-                            <li><a href="#">You can add links in your config file</a></li>
-                            <li><a href="#">Another social link</a></li>
+                            <li><a href="https://twitter.com/eggandburger">Twitter</a></li>
                         </ul>
                 </div><!-- /.social -->
         </section><!-- /#extras -->
