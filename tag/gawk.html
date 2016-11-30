@@ -3,8 +3,7 @@
 <head>
         <meta charset="utf-8" />
         <title>Coding stuff and things - gawk</title>
-        <link rel="stylesheet" href="http://aeggenberger.github.io/theme/css/main.css" />
-        <link href="http://aeggenberger.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Coding stuff and things Atom Feed" />
+        <link rel="stylesheet" href="https://aeggenberger.github.io/theme/css/main.css" />
 
         <!--[if IE]>
             <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -13,42 +12,188 @@
 
 <body id="index" class="home">
         <header id="banner" class="body">
-                <h1><a href="http://aeggenberger.github.io/">Coding stuff and things </a></h1>
+                <h1><a href="https://aeggenberger.github.io/">Coding stuff and things </a></h1>
                 <nav><ul>
-                    <li><a href="http://aeggenberger.github.io/category/meta.html">Meta</a></li>
-                    <li><a href="http://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a></li>
+                    <li><a href="https://aeggenberger.github.io/category/command-line.html">Command-line</a></li>
+                    <li><a href="https://aeggenberger.github.io/category/meta.html">Meta</a></li>
+                    <li><a href="https://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="http://aeggenberger.github.io/d3-awk-for-web.html">Is d3 awk for the web?</a></h1>
+                    <h1 class="entry-title"><a href="https://aeggenberger.github.io/data-cleanup-on-one-line.html">Quick and dirty data extraction with grep and friends</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2016-09-05T11:12:43-05:00">
+        <abbr class="published" title="2016-11-21T15:31:00-06:00">
+                Published: Mon 21 November 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://aeggenberger.github.io/author/andrew-eggenberger.html">Andrew Eggenberger</a>
+        </address>
+<p>In <a href="https://aeggenberger.github.io/category/command-line.html">Command-line</a>.</p>
+<p>tags: <a href="https://aeggenberger.github.io/tag/filthy.html">filthy</a> <a href="https://aeggenberger.github.io/tag/nasty.html">nasty</a> <a href="https://aeggenberger.github.io/tag/command-line.html">command line</a> <a href="https://aeggenberger.github.io/tag/awk.html">awk</a> <a href="https://aeggenberger.github.io/tag/gawk.html">gawk</a> <a href="https://aeggenberger.github.io/tag/tr.html">tr</a> <a href="https://aeggenberger.github.io/tag/grep.html">grep</a> </p>
+</footer><!-- /.post-info --><p>Going over an agenda before an upcoming school board meeting I noticed there are
+a lot of donations totalling a lot of money. But how many are there and for how
+much money, really? Before learning about unix command line utilities I would
+have said it's too many to tell. I mean, just look at this mess:</p>
+<pre>
+E.    Approve XXXXXXX Family Foundation $50,000 Donation for repair to
+Football Field and / or Equipment (Approve)
+
+Motion___________________                 Second___________________
+
+F.      Approve Football Jersey $1,176 Donation from XXXX & XXXXXXX XXXXXXXX   
+      (Action).
+
+
+Motion___________________                 Second___________________
+
+
+G.        Approve 9th Grade Retreat Donations. (Action).
+Alliance Bank- $50            Lake Pepin Veterinary Clinic- $200
+Ripley Dental- $100            Lake City Women’s Club- $200
+Mahn Funeral Home- $100        Lake City Family Physicians- $100
+Acrotech- $1000            Schleicher Funeral Home- $25
+
+
+Motion___________________                 Second___________________
+
+
+
+H.       Approve Eagle Bluff Donations. (Action).
+
+Acrotech- $2000            Lake City Sportsman’s Club- $500
+    Ardent Mills- $2000            Frontenac Sportsman’s Club- $3000
+
+
+Motion___________________                 Second___________________
+
+
+
+I.    Ag Department Ford 8N Tractor Donation by XXXXXX XXXXXXX  Donated to Ag
+         Mechanics for repair, restoration, and resale / fundraiser. (Action)
+
+
+Motion___________________                 Second____________________
+
+</pre>
+
+<p>It's somewhat orderly, sure. And, yeah, I could use a calculator or spreadsheet
+to answer both my questions. But that wouldn't feel like magic. So here's how,
+after some trial and error, I was able to do it with a one-liner in iTerm2
+running on OSX.</p>
+<h2>Step one: pbpaste</h2>
+<p>In OSX, the system pasteboard is accessible from the command line using <a href="https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/pbpaste.1.html">pbcopy
+and pbpaste</a>. All we need to do to get the raw text into terminal was to copy
+from its original location (a browser window in this case) and then use pbpaste.</p>
+<p><code>$ pbpaste</code></p>
+<h2>Step two: grep</h2>
+<p>Grep has spent the last 42 years single-mindedly carrying out its mission:
+<a href="https://linux.die.net/man/1/grep">to "print lines matching a pattern"</a>. After reading a bit of the <a href="https://en.wikipedia.org/wiki/Grep#History">Wikipedia
+entry</a> I think this post is doubly indebted to this utility. Firstly, and
+most obviously, I used it to accomplish what I wanted to do. The other reason is
+that, according to at least one commentator, I have grep to thank for
+"irrevocably ingraining" the unix convention of <a href="https://en.wikipedia.org/wiki/Unix_philosophy">small, composable tools</a>
+that is the basis of this post.</p>
+<p>Grep was the first tool that came to mind when I started thinking about ways to
+get the numbers out from among all those letters and symbols and spaces. But I
+was skeptical. It says right on the can that grep prints "lines". The donation
+data at times has two columns, meaning the amounts for more than one donation
+sometimes end up on the same row. On the <a href="https://linux.die.net/man/1/grep">man page</a> I found the -o option
+with the following description:</p>
+<blockquote>
+<p>Print only the matched (non-empty) parts of a matching line, with each such
+part on a separate output line.</p>
+</blockquote>
+<p>The next step is creating a pattern to match all the numbers and none of the
+non-numbers. We'll use the -E option (for extended regex) with the pattern
+'[0-9]{1,6},*[0-9]{1,6}'. The comma in the middle was required because only some
+of the donations of at least four figures use commas.</p>
+<p><code>| grep -Eo '[0-9]{1,6},*[0-9]{1,6}'</code></p>
+<h2>Step three: tr</h2>
+<p>It would have been simpler if there were no commas in our data but, to
+paraphrase a famous general(?), we go into data analysis with the data we have.
+Our data has some commas. We have to accept that. The problem now, to paraphrase
+a fake Mahatma Ghandhi quote, is how to get our data to be the data we want to
+analyze in the world. When you think about it, that's the problem of this entire
+post, but I digress. One answer to this dilemma is the utility <a href="https://linux.die.net/man/1/tr">tr</a>. tr can
+"translate or delete characters." We're going to ask it to delete our commas
+using the -d argument.</p>
+<p><code>| tr -d ','</code></p>
+<h2>Step four: awk</h2>
+<p>Once we have the data in a format we can use, our next step is to use the data
+to answer the questions that we have. For this we turn to <a href="https://linux.die.net/man/1/awk">awk</a>. The
+following short awk program will add each line to the total of all the previous
+lines: <code>{ sum+=$1}</code>. After adding up all the lines, we want to print
+the total, the final value of the variable <code>sum</code>. We'll accomplish
+this by appending an <code>END</code> block with a print statement and a comma
+separate list with two items, to values of <code>sum</code> and the built-in
+variable <code>NR</code> (aka the number of donations).</p>
+<p><code>| awk '{ sum+=$1} END {print sum, NR + 1}'</code></p>
+<h2>All together now</h2>
+<h3>The command</h3>
+<p><code>$ pbpaste | grep -Eo '[0-9]{1,6},*[0-9]{1,6}' | tr -d , | awk '{ sum+=$1}
+    END {print sum, NR}'</code></p>
+<h3>The result</h3>
+<pre>60451 14</pre>
+
+<p>So that's it, then: 14 donations totaling $60,451. Would it have been faster to
+use a spreadsheet or even a calculator or pen and paper? Maybe. (The answer is
+"definitely" if you include the time it took to compose a blog post about it.)
+But imagine if you were looking at pages and pages of this kind of information
+and it's easy to see how this sort of thing might prove useful, at least to get
+a quick estimate.</p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://aeggenberger.github.io/d3-awk-for-web.html" rel="bookmark"
+                           title="Permalink to Is d3 awk for the web?">Is d3 awk for the web?</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-09-05T12:00:00-05:00">
                 Published: Mon 05 September 2016
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="http://aeggenberger.github.io/author/andrew-eggenberger.html">Andrew Eggenberger</a>
+                By                         <a class="url fn" href="https://aeggenberger.github.io/author/andrew-eggenberger.html">Andrew Eggenberger</a>
         </address>
-<p>In <a href="http://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a>.</p>
-<p>tags: <a href="http://aeggenberger.github.io/tag/d3.html">d3</a> <a href="http://aeggenberger.github.io/tag/awk.html">awk</a> <a href="http://aeggenberger.github.io/tag/gawk.html">gawk</a> <a href="http://aeggenberger.github.io/tag/data-processing.html">data processing</a> </p>
-</footer><!-- /.post-info --><p>Maybe! I don't know.</p>
-<p>But there are some similarities that helped me make the leap from the (my?) usual procedural javascript style to the more declarative, functional style embraced by d3.</p>
+<p>In <a href="https://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a>.</p>
+<p>tags: <a href="https://aeggenberger.github.io/tag/d3.html">d3</a> <a href="https://aeggenberger.github.io/tag/awk.html">awk</a> <a href="https://aeggenberger.github.io/tag/gawk.html">gawk</a> <a href="https://aeggenberger.github.io/tag/data-processing.html">data processing</a> </p>
+</footer><!-- /.post-info -->                <p>Maybe! I don't know.</p>
+<p>But there are some similarities that helped me make the leap from the (my?)
+usual procedural javascript style to the more declarative, functional style
+embraced by d3.</p>
 <h2>'Data Driven'</h2>
-<p>Let's begin with awk's concept of records. These are the discrete chunks of data on which awk operates. At its most basic, awk goes through records one by one, optionally printing all or part of the record, transforming the record, updating a state variable to be accessed later -- all kinds of things. This is analogous to the d3 concept of data. In d3, data is <a href="http://alignedleft.com/tutorials/d3/binding-data">bound</a> to the DOM. Once the enter method is called, d3 iterates through the data in discrete chunks and does what it will with it.</p>
-<p>In both instances, it's the programmer's job to describe the data they want want to work with and what should happen when it's found, rather than set up a whole bunch of scaffolding and boilerplate code (for loops, etc.) to process the data. The documentation for both <a href="https://www.gnu.org/software/gawk/manual/gawk.html#Getting-Started">gawk</a> and <a href="https://d3js.org/">d3</a> describe this approach as "data driven." D3 itself is sort of but not quite an initialism for "Data-Driven Documents."</p>
-<h2>Similar philosophy, different use cases</h2>
-<p>It took me years of procedural hacking before I realized the usefulness of declarative syntax and functional programming. Now I use them whenever I can. Maybe someday I'll be able to use them whenever they are appropriate. The model is flexible enough that it can be used at different ends of my data pipeline. For instance, when I was creating a database table with a column for all the different types of police calls in Lake City, I didn't have a master list to work with. Instead I had years worth of weekly reports. Some calls, like "traffic violations," appear virtually every week. Others, like homicide, are extremely rare. Using a very short awk script, I was able to scan every file and return only the unique call types. As a bonus, I was able to format the output as a valid sql query that I ran against my database. I might use awk again to generate insert queries, one per week, into the table. </p>
-<p>Once I have my data, I'm going to want to present it to our readers. That's where d3 and its heavy focus on presentation comes in.</p>                </article>
-            </aside><!-- /#featured -->
+<p>Let's begin with awk's concept of records. These are the discrete chunks of data ...</p>
+                <a class="readmore" href="https://aeggenberger.github.io/d3-awk-for-web.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
         <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                            <li><a href="http://getpelican.com/">Pelican</a></li>
+                            <li><a href="http://python.org/">Python.org</a></li>
+                            <li><a href="http://jinja.pocoo.org/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href="http://aeggenberger.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="https://twitter.com/eggandburger">Twitter</a></li>
+                            <li><a href="mailto:andrew.eggenberger@gmail.com">Email</a></li>
                         </ul>
                 </div><!-- /.social -->
         </section><!-- /#extras -->
