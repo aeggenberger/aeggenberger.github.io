@@ -1,15 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Coding stuff and things</title><link href="http://aeggenberger.github.io/" rel="alternate"></link><link href="http://aeggenberger.github.io/feeds/all.atom.xml" rel="self"></link><id>http://aeggenberger.github.io/</id><updated>2016-09-05T11:12:43-05:00</updated><entry><title>Is d3 awk for the web?</title><link href="http://aeggenberger.github.io/d3-awk-for-web.html" rel="alternate"></link><published>2016-09-05T11:12:43-05:00</published><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-09-05:d3-awk-for-web.html</id><summary type="html">&lt;p&gt;Maybe! I don't know.&lt;/p&gt;
-&lt;p&gt;But there are some similarities that helped me make the leap from the (my?) usual procedural javascript style to the more declarative, functional style embraced by d3.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Coding stuff and things</title><link href="https://aeggenberger.github.io/" rel="alternate"></link><link href="https://aeggenberger.github.io/feeds/all.atom.xml" rel="self"></link><id>https://aeggenberger.github.io/</id><updated>2018-07-09T23:00:00-05:00</updated><entry><title>Coping With Twitter Follow Limits</title><link href="https://aeggenberger.github.io/coping-with-twitter-follow-limits.html" rel="alternate"></link><published>2018-07-09T23:00:00-05:00</published><updated>2018-07-09T23:00:00-05:00</updated><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2018-07-09:/coping-with-twitter-follow-limits.html</id><summary type="html">&lt;p&gt;If you're like me, you run into &lt;a href="https://help.twitter.com/en/using-twitter/twitter-follow-limit"&gt;follow limits&lt;/a&gt; on Twitter. 5,000 (as of this writing) isn't that many people, you think. And yet, Twitter is powerless to do anything about it.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Follow limits cannot be lifted by Twitter and everyone is subject to limits, even high profile and …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;p&gt;If you're like me, you run into &lt;a href="https://help.twitter.com/en/using-twitter/twitter-follow-limit"&gt;follow limits&lt;/a&gt; on Twitter. 5,000 (as of this writing) isn't that many people, you think. And yet, Twitter is powerless to do anything about it.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Follow limits cannot be lifted by Twitter and everyone is subject to limits, even high profile and API accounts.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;"That's bullshit! It's not that they cannot; they just do not want to! Oh god, I need help!" you might be thinking. You're probably right. But if you're not ready for counseling and, like me, just want to be able to mash that follow button at will, I've discovered a temporary solution. &lt;/p&gt;
+&lt;p&gt;This guide assumes you know how to code, ideally using &lt;a href="https://www.python.org/"&gt;Python&lt;/a&gt;. The first step is to download a client for the &lt;a href="https://developer.twitter.com"&gt;Twitter Developer API&lt;/a&gt;. I used &lt;a href="https://python-twitter.readthedocs.io/en/latest/index.html"&gt;python-twitter&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;$ pip install python-twitter&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Before you can start querying the Twitter API, you need authentication credentials. The python-twitter documentation has an easy-to-follow &lt;a href="https://python-twitter.readthedocs.io/en/latest/getting_started.html"&gt;guide&lt;/a&gt;. Completing the guide will leave you with your very own Twitter API object.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;twitter&lt;/span&gt;
+&lt;span class="n"&gt;api&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Api&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;consumer_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;consumer&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;consumer_secret&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;consumer&lt;/span&gt; &lt;span class="n"&gt;secret&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;access_token_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;access_token_secret&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="n"&gt;secret&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;sleep_on_rate_limit&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;(Note: I've added a keyword argument to the object above relative to what appears in the guide. &lt;code&gt;sleep_on_rate_limit=True&lt;/code&gt; will keep you and your 5,000 follows from running afoul of twitters API rate limits. It also means that some of the following commands will take a long time to run.)&lt;/p&gt;
+&lt;p&gt;Okay. Let's begin culling the list of people we follow. If you've been using Twitter a long time and follow thousands of people, there's a good chance some of the people you follow have stopped using the service without deleting their account. You are still following them, but they aren't contributing to your feed. This is the lowest hanging fruit.&lt;/p&gt;
+&lt;p&gt;Start by retrieving a list of all the accounts you follow:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;following&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetFriends&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Using a little helper function to ignore Twitter data errors, we'll create a list of lists of the most recent tweet from each account.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;SafeGetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;TwitterError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+
+&lt;span class="n"&gt;latest_tweets_lists&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;SafeGetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;friend&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;friend&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;following&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now we flatten the list from a list of lists of tweets to just a list of tweets.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# flatten the lists&lt;/span&gt;
+&lt;span class="n"&gt;latest_tweets&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;tweet&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tweet_list&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;latest_tweets_lists&lt;/span&gt;
+                 &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tweet&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;tweet_list&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next we sort the tweets by post date, and then use the sorted list to create a list of screen_names. The earlier in the list the screen name appears, the longer its been since that account tweeted. When I did this for my account, the longest-dormant account last tweeted in AD 2011.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;tweet_created_key&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tweet&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;tweet&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;created_at_in_seconds&lt;/span&gt;
+
+&lt;span class="c1"&gt;# sort by creation time&lt;/span&gt;
+&lt;span class="n"&gt;latest_tweets&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tweet_created_key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# list of screen names&lt;/span&gt;
+&lt;span class="n"&gt;screen_names&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;tweet&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;screen_name&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tweet&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;latest_tweets&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;From this point on it's important to be sure that the commands you issue will do what you intend them to do. Don't execute anything you don't understand. It is possible to undo most unfollows just by re-following, but some accounts may have switched over to "protected" mode since you began following them, meaning the user will have to approve your request to follow them once again.&lt;/p&gt;
+&lt;p&gt;Ready to do this? Neat. To figure out which accounts I wanted to unfollow, I just began slicing the list from the beginning and checking to see if there were any accounts I still want to follow from that list. Eventually I settled on a list of 100 names.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;names_to_unfollow&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;screen_names&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If there is an account that you would like to continue following, just use list operations to remove it from &lt;code&gt;names_to_unfollow&lt;/code&gt;. Now to do the actual unfollowing, we can use the &lt;code&gt;DestroyFriendship()&lt;/code&gt; method of our api object.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;names_to_delete&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DestroyFriendship&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The interpreter will print a line with information about each destroyed friendship.&lt;/p&gt;
+&lt;p&gt;Another source of candidates for unfollowing is this list of accounts that either don't have any tweets (either because they deleted them all or just haven't tweeted) or that triggered Twitter Data error while running SafeGetUserTimeline.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;zero_tweets_or_error&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;screen_name&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;following&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SafeGetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can amend and delete this list in the same way as before.&lt;/p&gt;
+&lt;p&gt;So there you have it: two ways to give yourself permission to follow again. Now that you can start following people again, how about following &lt;a href="https://twitter.com/eggandburger"&gt;this account&lt;/a&gt;? Not! Just kidding! Or am I. Yes.&lt;/p&gt;</content><category term="twitter"></category><category term="python"></category><category term="api"></category></entry><entry><title>Quick and dirty data extraction with grep and friends</title><link href="https://aeggenberger.github.io/data-cleanup-on-one-line.html" rel="alternate"></link><published>2016-11-21T15:31:00-06:00</published><updated>2016-11-21T15:31:00-06:00</updated><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-11-21:/data-cleanup-on-one-line.html</id><summary type="html">&lt;p&gt;Going over an agenda before an upcoming school board meeting I noticed there are
+a lot of donations totalling a lot of money. But how many are there and for how
+much money, really? Before learning about unix command line utilities I would
+have said it's too many to tell …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Going over an agenda before an upcoming school board meeting I noticed there are
+a lot of donations totalling a lot of money. But how many are there and for how
+much money, really? Before learning about unix command line utilities I would
+have said it's too many to tell. I mean, just look at this mess:&lt;/p&gt;
+&lt;pre&gt;
+E.    Approve XXXXXXX Family Foundation $50,000 Donation for repair to
+Football Field and / or Equipment (Approve)
+
+Motion___________________                 Second___________________
+
+F.      Approve Football Jersey $1,176 Donation from XXXX &amp; XXXXXXX XXXXXXXX   
+      (Action).
+
+
+Motion___________________                 Second___________________
+
+
+G.        Approve 9th Grade Retreat Donations. (Action).
+Alliance Bank- $50            Lake Pepin Veterinary Clinic- $200
+Ripley Dental- $100            Lake City Women’s Club- $200
+Mahn Funeral Home- $100        Lake City Family Physicians- $100
+Acrotech- $1000            Schleicher Funeral Home- $25
+
+
+Motion___________________                 Second___________________
+
+
+
+H.       Approve Eagle Bluff Donations. (Action).
+
+Acrotech- $2000            Lake City Sportsman’s Club- $500
+    Ardent Mills- $2000            Frontenac Sportsman’s Club- $3000
+
+
+Motion___________________                 Second___________________
+
+
+
+I.    Ag Department Ford 8N Tractor Donation by XXXXXX XXXXXXX  Donated to Ag
+         Mechanics for repair, restoration, and resale / fundraiser. (Action)
+
+
+Motion___________________                 Second____________________
+
+&lt;/pre&gt;
+
+&lt;p&gt;It's somewhat orderly, sure. And, yeah, I could use a calculator or spreadsheet
+to answer both my questions. But that wouldn't feel like magic. So here's how,
+after some trial and error, I was able to do it with a one-liner in iTerm2
+running on OSX.&lt;/p&gt;
+&lt;h2&gt;Step one: pbpaste&lt;/h2&gt;
+&lt;p&gt;In OSX, the system pasteboard is accessible from the command line using &lt;a href="https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/pbpaste.1.html"&gt;pbcopy
+and pbpaste&lt;/a&gt;. All we need to do to get the raw text into terminal was to copy
+from its original location (a browser window in this case) and then use pbpaste.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;$ pbpaste&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;Step two: grep&lt;/h2&gt;
+&lt;p&gt;Grep has spent the last 42 years single-mindedly carrying out its mission:
+&lt;a href="https://linux.die.net/man/1/grep"&gt;to "print lines matching a pattern"&lt;/a&gt;. After reading a bit of the &lt;a href="https://en.wikipedia.org/wiki/Grep#History"&gt;Wikipedia
+entry&lt;/a&gt; I think this post is doubly indebted to this utility. Firstly, and
+most obviously, I used it to accomplish what I wanted to do. The other reason is
+that, according to at least one commentator, I have grep to thank for
+"irrevocably ingraining" the unix convention of &lt;a href="https://en.wikipedia.org/wiki/Unix_philosophy"&gt;small, composable tools&lt;/a&gt;
+that is the basis of this post.&lt;/p&gt;
+&lt;p&gt;Grep was the first tool that came to mind when I started thinking about ways to
+get the numbers out from among all those letters and symbols and spaces. But I
+was skeptical. It says right on the can that grep prints "lines". The donation
+data at times has two columns, meaning the amounts for more than one donation
+sometimes end up on the same row. On the &lt;a href="https://linux.die.net/man/1/grep"&gt;man page&lt;/a&gt; I found the -o option
+with the following description:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Print only the matched (non-empty) parts of a matching line, with each such
+part on a separate output line.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The next step is creating a pattern to match all the numbers and none of the
+non-numbers. We'll use the -E option (for extended regex) with the pattern
+'[0-9]{1,6},*[0-9]{1,6}'. The comma in the middle was required because only some
+of the donations of at least four figures use commas.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;| grep -Eo '[0-9]{1,6},*[0-9]{1,6}'&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;Step three: tr&lt;/h2&gt;
+&lt;p&gt;It would have been simpler if there were no commas in our data but, to
+paraphrase a famous general(?), we go into data analysis with the data we have.
+Our data has some commas. We have to accept that. The problem now, to paraphrase
+a fake Mahatma Ghandhi quote, is how to get our data to be the data we want to
+analyze in the world. When you think about it, that's the problem of this entire
+post, but I digress. One answer to this dilemma is the utility &lt;a href="https://linux.die.net/man/1/tr"&gt;tr&lt;/a&gt;. tr can
+"translate or delete characters." We're going to ask it to delete our commas
+using the -d argument.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;| tr -d ','&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;Step four: awk&lt;/h2&gt;
+&lt;p&gt;Once we have the data in a format we can use, our next step is to use the data
+to answer the questions that we have. For this we turn to &lt;a href="https://linux.die.net/man/1/awk"&gt;awk&lt;/a&gt;. The
+following short awk program will add each line to the total of all the previous
+lines: &lt;code&gt;{ sum+=$1}&lt;/code&gt;. After adding up all the lines, we want to print
+the total, the final value of the variable &lt;code&gt;sum&lt;/code&gt;. We'll accomplish
+this by appending an &lt;code&gt;END&lt;/code&gt; block with a print statement and a comma
+separate list with two items, the output of &lt;code&gt;sum&lt;/code&gt; and the built-in
+variable &lt;code&gt;NR&lt;/code&gt; (aka the number of donations).&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;| awk '{ sum+=$1} END {print sum, NR + 1}'&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;All together now&lt;/h2&gt;
+&lt;h3&gt;The command&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;$ pbpaste | grep -Eo '[0-9]{1,6},*[0-9]{1,6}' | tr -d , | awk '{ sum+=$1}
+    END {print sum, NR}'&lt;/code&gt;&lt;/p&gt;
+&lt;h3&gt;The result&lt;/h3&gt;
+&lt;pre&gt;60451 14&lt;/pre&gt;
+
+&lt;p&gt;So that's it, then: 14 donations totaling $60,451. Would it have been faster to
+use a spreadsheet or even a calculator or pen and paper? Maybe. (The answer is
+"definitely" if you include the time it took to compose a blog post about it.)
+But imagine if you were looking at pages and pages of this kind of information
+and it's easy to see how this sort of thing might prove useful, at least to get
+a quick estimate.&lt;/p&gt;</content><category term="filthy"></category><category term="nasty"></category><category term="command line"></category><category term="awk"></category><category term="gawk"></category><category term="tr"></category><category term="grep"></category></entry><entry><title>Is d3 awk for the web?</title><link href="https://aeggenberger.github.io/d3-awk-for-web.html" rel="alternate"></link><published>2016-09-05T12:00:00-05:00</published><updated>2016-09-05T12:00:00-05:00</updated><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-09-05:/d3-awk-for-web.html</id><summary type="html">&lt;p&gt;Maybe! I don't know.&lt;/p&gt;
+&lt;p&gt;But there are some similarities that helped me make the leap from the (my?)
+usual procedural javascript style to the more declarative, functional style
+embraced by d3.&lt;/p&gt;
 &lt;h2&gt;'Data Driven'&lt;/h2&gt;
-&lt;p&gt;Let's begin with awk's concept of records. These are the discrete chunks of data on which awk operates. At its most basic, awk goes through records one by one, optionally printing all or part of the record, transforming the record, updating a state variable to be accessed later -- all kinds of things. This is analogous to the d3 concept of data. In d3, data is &lt;a href="http://alignedleft.com/tutorials/d3/binding-data"&gt;bound&lt;/a&gt; to the DOM. Once the enter method is called, d3 iterates through the data in discrete chunks and does what it will with it.&lt;/p&gt;
-&lt;p&gt;In both instances, it's the programmer's job to describe the data they want want to work with and what should happen when it's found, rather than set up a whole bunch of scaffolding and boilerplate code (for loops, etc.) to process the data. The documentation for both &lt;a href="https://www.gnu.org/software/gawk/manual/gawk.html#Getting-Started"&gt;gawk&lt;/a&gt; and &lt;a href="https://d3js.org/"&gt;d3&lt;/a&gt; describe this approach as "data driven." D3 itself is sort of but not quite an initialism for "Data-Driven Documents."&lt;/p&gt;
+&lt;p&gt;Let's begin with awk's concept of records. These are the discrete chunks of data
+on which awk …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Maybe! I don't know.&lt;/p&gt;
+&lt;p&gt;But there are some similarities that helped me make the leap from the (my?)
+usual procedural javascript style to the more declarative, functional style
+embraced by d3.&lt;/p&gt;
+&lt;h2&gt;'Data Driven'&lt;/h2&gt;
+&lt;p&gt;Let's begin with awk's concept of records. These are the discrete chunks of data
+on which awk operates. At its most basic, awk goes through records one by one,
+optionally printing all or part of the record, transforming the record, updating
+a state variable to be accessed later -- all kinds of things. This is analogous
+to the d3 concept of data. In d3, data is &lt;a href="http://alignedleft.com/tutorials/d3/binding-data"&gt;bound&lt;/a&gt; to the DOM. Once the enter
+method is called, d3 iterates through the data in discrete chunks and does what
+it will with it.&lt;/p&gt;
+&lt;p&gt;In both instances, it's the programmer's job to describe the data they want want
+to work with and what should happen when it's found, rather than set up a whole
+bunch of scaffolding and boilerplate code (for loops, etc.) to process the data.
+The documentation for both &lt;a href="https://www.gnu.org/software/gawk/manual/gawk.html#Getting-Started"&gt;gawk&lt;/a&gt; and &lt;a href="https://d3js.org/"&gt;d3&lt;/a&gt; describe this approach as "data
+driven." D3 itself is sort of but not quite an initialism for "Data-Driven
+Documents."&lt;/p&gt;
 &lt;h2&gt;Similar philosophy, different use cases&lt;/h2&gt;
-&lt;p&gt;It took me years of procedural hacking before I realized the usefulness of declarative syntax and functional programming. Now I use them whenever I can. Maybe someday I'll be able to use them whenever they are appropriate. The model is flexible enough that it can be used at different ends of my data pipeline. For instance, when I was creating a database table with a column for all the different types of police calls in Lake City, I didn't have a master list to work with. Instead I had years worth of weekly reports. Some calls, like "traffic violations," appear virtually every week. Others, like homicide, are extremely rare. Using a very short awk script, I was able to scan every file and return only the unique call types. As a bonus, I was able to format the output as a valid sql query that I ran against my database. I might use awk again to generate insert queries, one per week, into the table. &lt;/p&gt;
-&lt;p&gt;Once I have my data, I'm going to want to present it to our readers. That's where d3 and its heavy focus on presentation comes in.&lt;/p&gt;</summary><category term="d3"></category><category term="awk"></category><category term="gawk"></category><category term="data processing"></category></entry><entry><title>Why blog now</title><link href="http://aeggenberger.github.io/why-blog-now.html" rel="alternate"></link><published>2016-06-17T16:01:00-05:00</published><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-06-17:why-blog-now.html</id><summary type="html">&lt;p&gt;I've started blogging a bunch of times in a bunch of places and quit them all. This time
+&lt;p&gt;It took me years of procedural hacking before I realized the usefulness of
+declarative syntax and functional programming. Now I use them whenever I can.
+Maybe someday I'll be able to use them whenever they are appropriate. The model
+is flexible enough that it can be used at different ends of my data pipeline.
+For instance, when I was creating a database table with a column for all the
+different types of police calls in Lake City, I didn't have a master list to
+work with. Instead I had years worth of weekly reports. Some calls, like
+"traffic violations," appear virtually every week. Others, like homicide, are
+extremely rare. Using a very short awk script, I was able to scan every file and
+return only the unique call types. As a bonus, I was able to format the output
+as a valid sql query that I ran against my database. I might use awk again to
+generate insert queries, one per week, into the table. &lt;/p&gt;
+&lt;p&gt;Once I have my data, I'm going to want to present it to our readers. That's
+where d3 and its heavy focus on presentation comes in.&lt;/p&gt;</content><category term="d3"></category><category term="awk"></category><category term="gawk"></category><category term="data processing"></category></entry><entry><title>Why blog now</title><link href="https://aeggenberger.github.io/why-blog-now.html" rel="alternate"></link><published>2016-06-17T16:01:00-05:00</published><updated>2016-06-17T16:01:00-05:00</updated><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-06-17:/why-blog-now.html</id><summary type="html">&lt;p&gt;I've started blogging a bunch of times in a bunch of places and quit them all. This time
+is different (I think) because I have a reason other than self-expression for doing it.
+I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've added functionality 
+and …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I've started blogging a bunch of times in a bunch of places and quit them all. This time
 is different (I think) because I have a reason other than self-expression for doing it.
 I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've added functionality 
 and modules, I've learned a lot. Then I forgot it. Then I realized I didn't even know where
 I learned it in the first place.&lt;/p&gt;
 &lt;p&gt;This blog is intended to be a public notebook for recording and sharing what I learn about 
-the Drupal platform and running a small website.&lt;/p&gt;</summary><category term="reasons"></category></entry></feed>
+the Drupal platform and running a small website.&lt;/p&gt;</content><category term="reasons"></category></entry></feed>

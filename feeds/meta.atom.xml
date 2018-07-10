@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Coding stuff and things</title><link href="http://aeggenberger.github.io/" rel="alternate"></link><link href="http://aeggenberger.github.io/feeds/meta.atom.xml" rel="self"></link><id>http://aeggenberger.github.io/</id><updated>2016-06-17T16:01:00-05:00</updated><entry><title>Why blog now</title><link href="http://aeggenberger.github.io/why-blog-now.html" rel="alternate"></link><published>2016-06-17T16:01:00-05:00</published><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-06-17:why-blog-now.html</id><summary type="html">&lt;p&gt;I've started blogging a bunch of times in a bunch of places and quit them all. This time
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Coding stuff and things - Meta</title><link href="https://aeggenberger.github.io/" rel="alternate"></link><link href="https://aeggenberger.github.io/feeds/meta.atom.xml" rel="self"></link><id>https://aeggenberger.github.io/</id><updated>2016-06-17T16:01:00-05:00</updated><entry><title>Why blog now</title><link href="https://aeggenberger.github.io/why-blog-now.html" rel="alternate"></link><published>2016-06-17T16:01:00-05:00</published><updated>2016-06-17T16:01:00-05:00</updated><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2016-06-17:/why-blog-now.html</id><summary type="html">&lt;p&gt;I've started blogging a bunch of times in a bunch of places and quit them all. This time
+is different (I think) because I have a reason other than self-expression for doing it.
+I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've added functionality 
+and …&lt;/p&gt;</summary><content type="html">&lt;p&gt;I've started blogging a bunch of times in a bunch of places and quit them all. This time
 is different (I think) because I have a reason other than self-expression for doing it.
 I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've added functionality 
 and modules, I've learned a lot. Then I forgot it. Then I realized I didn't even know where
 I learned it in the first place.&lt;/p&gt;
 &lt;p&gt;This blog is intended to be a public notebook for recording and sharing what I learn about 
-the Drupal platform and running a small website.&lt;/p&gt;</summary><category term="reasons"></category></entry></feed>
+the Drupal platform and running a small website.&lt;/p&gt;</content><category term="reasons"></category></entry></feed>

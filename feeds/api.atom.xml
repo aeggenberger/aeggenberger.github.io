@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Coding stuff and things - API</title><link href="https://aeggenberger.github.io/" rel="alternate"></link><link href="https://aeggenberger.github.io/feeds/api.atom.xml" rel="self"></link><id>https://aeggenberger.github.io/</id><updated>2018-07-09T23:00:00-05:00</updated><entry><title>Coping With Twitter Follow Limits</title><link href="https://aeggenberger.github.io/coping-with-twitter-follow-limits.html" rel="alternate"></link><published>2018-07-09T23:00:00-05:00</published><updated>2018-07-09T23:00:00-05:00</updated><author><name>Andrew Eggenberger</name></author><id>tag:aeggenberger.github.io,2018-07-09:/coping-with-twitter-follow-limits.html</id><summary type="html">&lt;p&gt;If you're like me, you run into &lt;a href="https://help.twitter.com/en/using-twitter/twitter-follow-limit"&gt;follow limits&lt;/a&gt; on Twitter. 5,000 (as of this writing) isn't that many people, you think. And yet, Twitter is powerless to do anything about it.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Follow limits cannot be lifted by Twitter and everyone is subject to limits, even high profile and …&lt;/p&gt;&lt;/blockquote&gt;</summary><content type="html">&lt;p&gt;If you're like me, you run into &lt;a href="https://help.twitter.com/en/using-twitter/twitter-follow-limit"&gt;follow limits&lt;/a&gt; on Twitter. 5,000 (as of this writing) isn't that many people, you think. And yet, Twitter is powerless to do anything about it.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Follow limits cannot be lifted by Twitter and everyone is subject to limits, even high profile and API accounts.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;"That's bullshit! It's not that they cannot; they just do not want to! Oh god, I need help!" you might be thinking. You're probably right. But if you're not ready for counseling and, like me, just want to be able to mash that follow button at will, I've discovered a temporary solution. &lt;/p&gt;
+&lt;p&gt;This guide assumes you know how to code, ideally using &lt;a href="https://www.python.org/"&gt;Python&lt;/a&gt;. The first step is to download a client for the &lt;a href="https://developer.twitter.com"&gt;Twitter Developer API&lt;/a&gt;. I used &lt;a href="https://python-twitter.readthedocs.io/en/latest/index.html"&gt;python-twitter&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;$ pip install python-twitter&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Before you can start querying the Twitter API, you need authentication credentials. The python-twitter documentation has an easy-to-follow &lt;a href="https://python-twitter.readthedocs.io/en/latest/getting_started.html"&gt;guide&lt;/a&gt;. Completing the guide will leave you with your very own Twitter API object.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;twitter&lt;/span&gt;
+&lt;span class="n"&gt;api&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Api&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;consumer_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;consumer&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;consumer_secret&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;consumer&lt;/span&gt; &lt;span class="n"&gt;secret&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;access_token_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;access_token_secret&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="n"&gt;secret&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                  &lt;span class="n"&gt;sleep_on_rate_limit&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;(Note: I've added a keyword argument to the object above relative to what appears in the guide. &lt;code&gt;sleep_on_rate_limit=True&lt;/code&gt; will keep you and your 5,000 follows from running afoul of twitters API rate limits. It also means that some of the following commands will take a long time to run.)&lt;/p&gt;
+&lt;p&gt;Okay. Let's begin culling the list of people we follow. If you've been using Twitter a long time and follow thousands of people, there's a good chance some of the people you follow have stopped using the service without deleting their account. You are still following them, but they aren't contributing to your feed. This is the lowest hanging fruit.&lt;/p&gt;
+&lt;p&gt;Start by retrieving a list of all the accounts you follow:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;following&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetFriends&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Using a little helper function to ignore Twitter data errors, we'll create a list of lists of the most recent tweet from each account.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;SafeGetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;TwitterError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+
+&lt;span class="n"&gt;latest_tweets_lists&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;SafeGetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;friend&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;friend&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;following&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now we flatten the list from a list of lists of tweets to just a list of tweets.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# flatten the lists&lt;/span&gt;
+&lt;span class="n"&gt;latest_tweets&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;tweet&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tweet_list&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;latest_tweets_lists&lt;/span&gt;
+                 &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tweet&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;tweet_list&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next we sort the tweets by post date, and then use the sorted list to create a list of screen_names. The earlier in the list the screen name appears, the longer its been since that account tweeted. When I did this for my account, the longest-dormant account last tweeted in AD 2011.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;tweet_created_key&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tweet&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;tweet&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;created_at_in_seconds&lt;/span&gt;
+
+&lt;span class="c1"&gt;# sort by creation time&lt;/span&gt;
+&lt;span class="n"&gt;latest_tweets&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tweet_created_key&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# list of screen names&lt;/span&gt;
+&lt;span class="n"&gt;screen_names&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;tweet&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;screen_name&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tweet&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;latest_tweets&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;From this point on it's important to be sure that the commands you issue will do what you intend them to do. Don't execute anything you don't understand. It is possible to undo most unfollows just by re-following, but some accounts may have switched over to "protected" mode since you began following them, meaning the user will have to approve your request to follow them once again.&lt;/p&gt;
+&lt;p&gt;Ready to do this? Neat. To figure out which accounts I wanted to unfollow, I just began slicing the list from the beginning and checking to see if there were any accounts I still want to follow from that list. Eventually I settled on a list of 100 names.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;names_to_unfollow&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;screen_names&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If there is an account that you would like to continue following, just use list operations to remove it from &lt;code&gt;names_to_unfollow&lt;/code&gt;. Now to do the actual unfollowing, we can use the &lt;code&gt;DestroyFriendship()&lt;/code&gt; method of our api object.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;names_to_delete&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;api&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DestroyFriendship&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The interpreter will print a line with information about each destroyed friendship.&lt;/p&gt;
+&lt;p&gt;Another source of candidates for unfollowing is this list of accounts that either don't have any tweets (either because they deleted them all or just haven't tweeted) or that triggered Twitter Data error while running SafeGetUserTimeline.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;zero_tweets_or_error&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;screen_name&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;following&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SafeGetUserTimeline&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can amend and delete this list in the same way as before.&lt;/p&gt;
+&lt;p&gt;So there you have it: two ways to give yourself permission to follow again. Now that you can start following people again, how about following &lt;a href="https://twitter.com/eggandburger"&gt;this account&lt;/a&gt;? Not! Just kidding! Or am I. Yes.&lt;/p&gt;</content><category term="twitter"></category><category term="python"></category><category term="api"></category></entry></feed>

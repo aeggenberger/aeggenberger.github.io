@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <title>Coding stuff and things</title>
         <link rel="stylesheet" href="https://aeggenberger.github.io/theme/css/main.css" />
+        <link href="https://aeggenberger.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Coding stuff and things Atom Feed" />
 
         <!--[if IE]>
             <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -14,6 +15,7 @@
         <header id="banner" class="body">
                 <h1><a href="https://aeggenberger.github.io/">Coding stuff and things </a></h1>
                 <nav><ul>
+                    <li><a href="https://aeggenberger.github.io/category/api.html">API</a></li>
                     <li><a href="https://aeggenberger.github.io/category/command-line.html">Command-line</a></li>
                     <li><a href="https://aeggenberger.github.io/category/meta.html">Meta</a></li>
                     <li><a href="https://aeggenberger.github.io/category/thinking-about-working-with-data.html">Thinking about working with data</a></li>
@@ -22,7 +24,105 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="https://aeggenberger.github.io/data-cleanup-on-one-line.html">Quick and dirty data extraction with grep and friends</a></h1>
+                    <h1 class="entry-title"><a href="https://aeggenberger.github.io/coping-with-twitter-follow-limits.html">Coping With Twitter Follow Limits</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2018-07-09T23:00:00-05:00">
+                Published: Mon 09 July 2018
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="https://aeggenberger.github.io/author/andrew-eggenberger.html">Andrew Eggenberger</a>
+        </address>
+<p>In <a href="https://aeggenberger.github.io/category/api.html">API</a>.</p>
+<p>tags: <a href="https://aeggenberger.github.io/tag/twitter.html">twitter</a> <a href="https://aeggenberger.github.io/tag/python.html">python</a> <a href="https://aeggenberger.github.io/tag/api.html">api</a> </p>
+</footer><!-- /.post-info --><p>If you're like me, you run into <a href="https://help.twitter.com/en/using-twitter/twitter-follow-limit">follow limits</a> on Twitter. 5,000 (as of this writing) isn't that many people, you think. And yet, Twitter is powerless to do anything about it.</p>
+<blockquote>
+<p>Follow limits cannot be lifted by Twitter and everyone is subject to limits, even high profile and API accounts.</p>
+</blockquote>
+<p>"That's bullshit! It's not that they cannot; they just do not want to! Oh god, I need help!" you might be thinking. You're probably right. But if you're not ready for counseling and, like me, just want to be able to mash that follow button at will, I've discovered a temporary solution. </p>
+<p>This guide assumes you know how to code, ideally using <a href="https://www.python.org/">Python</a>. The first step is to download a client for the <a href="https://developer.twitter.com">Twitter Developer API</a>. I used <a href="https://python-twitter.readthedocs.io/en/latest/index.html">python-twitter</a>.</p>
+<p><code>$ pip install python-twitter</code></p>
+<p>Before you can start querying the Twitter API, you need authentication credentials. The python-twitter documentation has an easy-to-follow <a href="https://python-twitter.readthedocs.io/en/latest/getting_started.html">guide</a>. Completing the guide will leave you with your very own Twitter API object.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">twitter</span>
+<span class="n">api</span> <span class="o">=</span> <span class="n">twitter</span><span class="o">.</span><span class="n">Api</span><span class="p">(</span><span class="n">consumer_key</span><span class="o">=</span><span class="p">[</span><span class="n">consumer</span> <span class="n">key</span><span class="p">],</span>
+                  <span class="n">consumer_secret</span><span class="o">=</span><span class="p">[</span><span class="n">consumer</span> <span class="n">secret</span><span class="p">],</span>
+                  <span class="n">access_token_key</span><span class="o">=</span><span class="p">[</span><span class="n">access</span> <span class="n">token</span><span class="p">],</span>
+                  <span class="n">access_token_secret</span><span class="o">=</span><span class="p">[</span><span class="n">access</span> <span class="n">token</span> <span class="n">secret</span><span class="p">],</span>
+                  <span class="n">sleep_on_rate_limit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>(Note: I've added a keyword argument to the object above relative to what appears in the guide. <code>sleep_on_rate_limit=True</code> will keep you and your 5,000 follows from running afoul of twitters API rate limits. It also means that some of the following commands will take a long time to run.)</p>
+<p>Okay. Let's begin culling the list of people we follow. If you've been using Twitter a long time and follow thousands of people, there's a good chance some of the people you follow have stopped using the service without deleting their account. You are still following them, but they aren't contributing to your feed. This is the lowest hanging fruit.</p>
+<p>Start by retrieving a list of all the accounts you follow:</p>
+<div class="highlight"><pre><span></span><span class="n">following</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">GetFriends</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Using a little helper function to ignore Twitter data errors, we'll create a list of lists of the most recent tweet from each account.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">SafeGetUserTimeline</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">api</span><span class="o">.</span><span class="n">GetUserTimeline</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">twitter</span><span class="o">.</span><span class="n">TwitterError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+<span class="n">latest_tweets_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">SafeGetUserTimeline</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">friend</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">friend</span> <span class="ow">in</span> <span class="n">following</span><span class="p">]</span>
+</pre></div>
+
+
+<p>Now we flatten the list from a list of lists of tweets to just a list of tweets.</p>
+<div class="highlight"><pre><span></span><span class="c1"># flatten the lists</span>
+<span class="n">latest_tweets</span> <span class="o">=</span> <span class="p">[</span><span class="n">tweet</span> <span class="k">for</span> <span class="n">tweet_list</span> <span class="ow">in</span> <span class="n">latest_tweets_lists</span>
+                 <span class="k">for</span> <span class="n">tweet</span> <span class="ow">in</span> <span class="n">tweet_list</span><span class="p">]</span>
+</pre></div>
+
+
+<p>Next we sort the tweets by post date, and then use the sorted list to create a list of screen_names. The earlier in the list the screen name appears, the longer its been since that account tweeted. When I did this for my account, the longest-dormant account last tweeted in AD 2011.</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tweet_created_key</span><span class="p">(</span><span class="n">tweet</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tweet</span><span class="o">.</span><span class="n">created_at_in_seconds</span>
+
+<span class="c1"># sort by creation time</span>
+<span class="n">latest_tweets</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">tweet_created_key</span><span class="p">)</span>
+
+<span class="c1"># list of screen names</span>
+<span class="n">screen_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">tweet</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">screen_name</span> <span class="k">for</span> <span class="n">tweet</span> <span class="ow">in</span> <span class="n">latest_tweets</span><span class="p">]</span>
+</pre></div>
+
+
+<p>From this point on it's important to be sure that the commands you issue will do what you intend them to do. Don't execute anything you don't understand. It is possible to undo most unfollows just by re-following, but some accounts may have switched over to "protected" mode since you began following them, meaning the user will have to approve your request to follow them once again.</p>
+<p>Ready to do this? Neat. To figure out which accounts I wanted to unfollow, I just began slicing the list from the beginning and checking to see if there were any accounts I still want to follow from that list. Eventually I settled on a list of 100 names.</p>
+<div class="highlight"><pre><span></span><span class="n">names_to_unfollow</span> <span class="o">=</span> <span class="n">screen_names</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span>
+</pre></div>
+
+
+<p>If there is an account that you would like to continue following, just use list operations to remove it from <code>names_to_unfollow</code>. Now to do the actual unfollowing, we can use the <code>DestroyFriendship()</code> method of our api object.</p>
+<div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_to_delete</span><span class="p">:</span>
+    <span class="n">api</span><span class="o">.</span><span class="n">DestroyFriendship</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The interpreter will print a line with information about each destroyed friendship.</p>
+<p>Another source of candidates for unfollowing is this list of accounts that either don't have any tweets (either because they deleted them all or just haven't tweeted) or that triggered Twitter Data error while running SafeGetUserTimeline.</p>
+<div class="highlight"><pre><span></span><span class="n">zero_tweets_or_error</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">screen_name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">following</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">SafeGetUserTimeline</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+
+<p>You can amend and delete this list in the same way as before.</p>
+<p>So there you have it: two ways to give yourself permission to follow again. Now that you can start following people again, how about following <a href="https://twitter.com/eggandburger">this account</a>? Not! Just kidding! Or am I. Yes.</p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="https://aeggenberger.github.io/data-cleanup-on-one-line.html" rel="bookmark"
+                           title="Permalink to Quick and dirty data extraction with grep and friends">Quick and dirty data extraction with grep and friends</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2016-11-21T15:31:00-06:00">
                 Published: Mon 21 November 2016
@@ -33,122 +133,13 @@
         </address>
 <p>In <a href="https://aeggenberger.github.io/category/command-line.html">Command-line</a>.</p>
 <p>tags: <a href="https://aeggenberger.github.io/tag/filthy.html">filthy</a> <a href="https://aeggenberger.github.io/tag/nasty.html">nasty</a> <a href="https://aeggenberger.github.io/tag/command-line.html">command line</a> <a href="https://aeggenberger.github.io/tag/awk.html">awk</a> <a href="https://aeggenberger.github.io/tag/gawk.html">gawk</a> <a href="https://aeggenberger.github.io/tag/tr.html">tr</a> <a href="https://aeggenberger.github.io/tag/grep.html">grep</a> </p>
-</footer><!-- /.post-info --><p>Going over an agenda before an upcoming school board meeting I noticed there are
+</footer><!-- /.post-info -->                <p>Going over an agenda before an upcoming school board meeting I noticed there are
 a lot of donations totalling a lot of money. But how many are there and for how
 much money, really? Before learning about unix command line utilities I would
-have said it's too many to tell. I mean, just look at this mess:</p>
-<pre>
-E.    Approve XXXXXXX Family Foundation $50,000 Donation for repair to
-Football Field and / or Equipment (Approve)
-
-Motion___________________                 Second___________________
-
-F.      Approve Football Jersey $1,176 Donation from XXXX & XXXXXXX XXXXXXXX   
-      (Action).
-
-
-Motion___________________                 Second___________________
-
-
-G.        Approve 9th Grade Retreat Donations. (Action).
-Alliance Bank- $50            Lake Pepin Veterinary Clinic- $200
-Ripley Dental- $100            Lake City Women’s Club- $200
-Mahn Funeral Home- $100        Lake City Family Physicians- $100
-Acrotech- $1000            Schleicher Funeral Home- $25
-
-
-Motion___________________                 Second___________________
-
-
-
-H.       Approve Eagle Bluff Donations. (Action).
-
-Acrotech- $2000            Lake City Sportsman’s Club- $500
-    Ardent Mills- $2000            Frontenac Sportsman’s Club- $3000
-
-
-Motion___________________                 Second___________________
-
-
-
-I.    Ag Department Ford 8N Tractor Donation by XXXXXX XXXXXXX  Donated to Ag
-         Mechanics for repair, restoration, and resale / fundraiser. (Action)
-
-
-Motion___________________                 Second____________________
-
-</pre>
-
-<p>It's somewhat orderly, sure. And, yeah, I could use a calculator or spreadsheet
-to answer both my questions. But that wouldn't feel like magic. So here's how,
-after some trial and error, I was able to do it with a one-liner in iTerm2
-running on OSX.</p>
-<h2>Step one: pbpaste</h2>
-<p>In OSX, the system pasteboard is accessible from the command line using <a href="https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/pbpaste.1.html">pbcopy
-and pbpaste</a>. All we need to do to get the raw text into terminal was to copy
-from its original location (a browser window in this case) and then use pbpaste.</p>
-<p><code>$ pbpaste</code></p>
-<h2>Step two: grep</h2>
-<p>Grep has spent the last 42 years single-mindedly carrying out its mission:
-<a href="https://linux.die.net/man/1/grep">to "print lines matching a pattern"</a>. After reading a bit of the <a href="https://en.wikipedia.org/wiki/Grep#History">Wikipedia
-entry</a> I think this post is doubly indebted to this utility. Firstly, and
-most obviously, I used it to accomplish what I wanted to do. The other reason is
-that, according to at least one commentator, I have grep to thank for
-"irrevocably ingraining" the unix convention of <a href="https://en.wikipedia.org/wiki/Unix_philosophy">small, composable tools</a>
-that is the basis of this post.</p>
-<p>Grep was the first tool that came to mind when I started thinking about ways to
-get the numbers out from among all those letters and symbols and spaces. But I
-was skeptical. It says right on the can that grep prints "lines". The donation
-data at times has two columns, meaning the amounts for more than one donation
-sometimes end up on the same row. On the <a href="https://linux.die.net/man/1/grep">man page</a> I found the -o option
-with the following description:</p>
-<blockquote>
-<p>Print only the matched (non-empty) parts of a matching line, with each such
-part on a separate output line.</p>
-</blockquote>
-<p>The next step is creating a pattern to match all the numbers and none of the
-non-numbers. We'll use the -E option (for extended regex) with the pattern
-'[0-9]{1,6},*[0-9]{1,6}'. The comma in the middle was required because only some
-of the donations of at least four figures use commas.</p>
-<p><code>| grep -Eo '[0-9]{1,6},*[0-9]{1,6}'</code></p>
-<h2>Step three: tr</h2>
-<p>It would have been simpler if there were no commas in our data but, to
-paraphrase a famous general(?), we go into data analysis with the data we have.
-Our data has some commas. We have to accept that. The problem now, to paraphrase
-a fake Mahatma Ghandhi quote, is how to get our data to be the data we want to
-analyze in the world. When you think about it, that's the problem of this entire
-post, but I digress. One answer to this dilemma is the utility <a href="https://linux.die.net/man/1/tr">tr</a>. tr can
-"translate or delete characters." We're going to ask it to delete our commas
-using the -d argument.</p>
-<p><code>| tr -d ','</code></p>
-<h2>Step four: awk</h2>
-<p>Once we have the data in a format we can use, our next step is to use the data
-to answer the questions that we have. For this we turn to <a href="https://linux.die.net/man/1/awk">awk</a>. The
-following short awk program will add each line to the total of all the previous
-lines: <code>{ sum+=$1}</code>. After adding up all the lines, we want to print
-the total, the final value of the variable <code>sum</code>. We'll accomplish
-this by appending an <code>END</code> block with a print statement and a comma
-separate list with two items, the output of <code>sum</code> and the built-in
-variable <code>NR</code> (aka the number of donations).</p>
-<p><code>| awk '{ sum+=$1} END {print sum, NR + 1}'</code></p>
-<h2>All together now</h2>
-<h3>The command</h3>
-<p><code>$ pbpaste | grep -Eo '[0-9]{1,6},*[0-9]{1,6}' | tr -d , | awk '{ sum+=$1}
-    END {print sum, NR}'</code></p>
-<h3>The result</h3>
-<pre>60451 14</pre>
-
-<p>So that's it, then: 14 donations totaling $60,451. Would it have been faster to
-use a spreadsheet or even a calculator or pen and paper? Maybe. (The answer is
-"definitely" if you include the time it took to compose a blog post about it.)
-But imagine if you were looking at pages and pages of this kind of information
-and it's easy to see how this sort of thing might prove useful, at least to get
-a quick estimate.</p>                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
+have said it's too many to tell …</p>
+                <a class="readmore" href="https://aeggenberger.github.io/data-cleanup-on-one-line.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
@@ -172,7 +163,8 @@ a quick estimate.</p>                </article>
 usual procedural javascript style to the more declarative, functional style
 embraced by d3.</p>
 <h2>'Data Driven'</h2>
-<p>Let's begin with awk's concept of records. These are the discrete chunks of data ...</p>
+<p>Let's begin with awk's concept of records. These are the discrete chunks of data
+on which awk …</p>
                 <a class="readmore" href="https://aeggenberger.github.io/d3-awk-for-web.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
@@ -196,7 +188,8 @@ embraced by d3.</p>
 <p>tags: <a href="https://aeggenberger.github.io/tag/reasons.html">reasons</a> </p>
 </footer><!-- /.post-info -->                <p>I've started blogging a bunch of times in a bunch of places and quit them all. This time
 is different (I think) because I have a reason other than self-expression for doing it.
-I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've ...</p>
+I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've added functionality 
+and …</p>
                 <a class="readmore" href="https://aeggenberger.github.io/why-blog-now.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
@@ -204,7 +197,7 @@ I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've ...</p>
                 </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="blogroll">
-                        <h2>blogroll</h2>
+                        <h2>links</h2>
                         <ul>
                             <li><a href="http://getpelican.com/">Pelican</a></li>
                             <li><a href="http://python.org/">Python.org</a></li>
@@ -215,6 +208,7 @@ I'm in charge of a Drupal 7 installation for a weekly newspaper. As I've ...</p>
                 <div class="social">
                         <h2>social</h2>
                         <ul>
+                            <li><a href="https://aeggenberger.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="https://twitter.com/eggandburger">Twitter</a></li>
                             <li><a href="mailto:andrew.eggenberger@gmail.com">Email</a></li>
